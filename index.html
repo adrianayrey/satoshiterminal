@@ -1,0 +1,272 @@
+import React, { useState, useEffect } from 'react';
+import { Twitter } from 'lucide-react';
+
+const SatoshiTerminal = () => {
+  const [input, setInput] = useState('');
+  const [history, setHistory] = useState([]);
+  const [cursorBlink, setCursorBlink] = useState(true);
+  const [bootSequence, setBootSequence] = useState(true);
+  const [bootMessages, setBootMessages] = useState([]);
+
+  const mysteriousMascot = `
+     /\\
+    /  \\   _____     _             _     _ 
+   / /\\ \\ / ____|   | |           | |   (_)
+  / ____ \\| (___   __|_ ___  _ ___| |__  _ 
+ /_/    \\_\\___ \\ / _\` / _ \\| / __| '_ \\| |
+          ____) | (_| | (_) | \\__ \\ | | | |
+         |_____/ \\__,_\\___/|_|___/_| |_|_|
+         
+         "In code we trust"
+  `;
+
+  const initialBootMessages = [
+    { text: 'Initializing Satoshi Terminal v1.0.0...', delay: 500 },
+    { text: 'Loading cryptographic protocols...', delay: 800 },
+    { text: 'Connecting to decentralized network...', delay: 1200 },
+    { text: 'Verifying blockchain integrity...', delay: 1500 },
+    { text: mysteriousMascot, delay: 1800 },
+    { text: 'Access granted. Welcome to Satoshi Archives.', delay: 2000 },
+    { text: 'Type "help" for available commands.', delay: 2300 },
+  ];
+
+  const commands = {
+    help: () => ({
+      output: `Available commands:
+• about - Learn about Satoshi Nakamoto
+• timeline - View key events
+• quotes - Famous Satoshi quotes
+• bitcoin - Bitcoin whitepaper details
+• clear - Clear terminal
+• contacts - Known communication methods
+• stats - Key statistics
+• help - Show this help message`
+    }),
+
+    about: () => ({
+      output: `SATOSHI NAKAMOTO
+══════════════════
+• Creator of Bitcoin
+• Published Bitcoin whitepaper on October 31, 2008
+• Identity remains unknown
+• Estimated holdings: ~1,000,000 BTC
+• Last known communication: December 2010
+• Genius-level understanding of economics and cryptography
+• Changed the future of money forever`
+    }),
+
+    timeline: () => ({
+      output: `TIMELINE
+════════
+2008-08-18 | Bitcoin.org domain registered
+2008-10-31 | Bitcoin whitepaper published
+2009-01-03 | Genesis block mined
+2009-01-09 | Bitcoin v0.1 released
+2010-12-12 | Last verified Satoshi post
+2011-04-23 | Last known communication
+........ | The mystery continues`
+    }),
+
+    quotes: () => ({
+      output: `SATOSHI QUOTES
+═════════════
+"The root problem with conventional currency is all the trust that's required to make it work."
+
+"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
+[Genesis block message]
+
+"Lost coins only make everyone else's coins worth slightly more. Think of it as a donation to everyone."
+
+"If you don't believe it or don't get it, I don't have the time to try to convince you, sorry."
+
+"The nature of Bitcoin is such that once version 0.1 was released, the core design was set in stone for the rest of its lifetime."`
+    }),
+
+    bitcoin: () => ({
+      output: `BITCOIN WHITEPAPER
+══════════════════
+Title: Bitcoin: A Peer-to-Peer Electronic Cash System
+Published: October 31, 2008
+Length: 9 pages
+Hash: b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553
+
+Abstract:
+"A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution..."`
+    }),
+
+    clear: () => {
+      setHistory([]);
+      return { output: '' };
+    },
+
+    contacts: () => ({
+      output: `KNOWN COMMUNICATION CHANNELS
+══════════════════════════
+• P2P Foundation Forum
+• Bitcoin Talk Forum
+• SourceForge
+• Private emails with early developers
+• Bitcoin-dev mailing list
+
+All communications ceased in 2010/2011.
+No verified contact since then.`
+    }),
+
+    stats: () => ({
+      output: `KEY STATISTICS
+═════════════
+• Forum Posts: 539
+• Emails: ~82 known
+• Code Commits: 101
+• Bitcoin Mined: ~1,000,000 BTC
+• Whitepaper Words: 3,192
+• Active Days: 772
+• Known PGP Keys: 2`
+    }),
+  };
+
+  useEffect(() => {
+    if (bootSequence) {
+      let currentDelay = 0;
+      initialBootMessages.forEach((msg, index) => {
+        currentDelay += msg.delay;
+        setTimeout(() => {
+          setBootMessages(prev => [...prev, msg.text]);
+          if (index === initialBootMessages.length - 1) {
+            setBootSequence(false);
+          }
+        }, currentDelay);
+      });
+    }
+
+    const interval = setInterval(() => {
+      setCursorBlink(prev => !prev);
+    }, 530);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCommand = (e) => {
+    e.preventDefault();
+    const trimmedInput = input.trim().toLowerCase();
+    
+    if (trimmedInput) {
+      const commandResult = commands[trimmedInput] 
+        ? commands[trimmedInput]() 
+        : { output: `Command not found: ${trimmedInput}. Type "help" for available commands.` };
+
+      setHistory(prev => [...prev, 
+        { type: 'input', content: input },
+        { type: 'output', content: commandResult.output }
+      ]);
+      setInput('');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-green-500 font-mono p-4 overflow-hidden flex flex-col">
+      <div className="max-w-4xl mx-auto w-full flex-grow">
+        {/* Matrix Background Effect */}
+        <div className="fixed inset-0 pointer-events-none opacity-20">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute text-green-500 animate-matrix"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                fontSize: '14px'
+              }}
+            >
+              {'10'}
+            </div>
+          ))}
+        </div>
+
+        {/* Terminal Window */}
+        <div className="border border-green-500 rounded-lg overflow-hidden shadow-lg shadow-green-500/20 relative z-10">
+          {/* Terminal Header */}
+          <div className="border-b border-green-500 p-2 flex justify-between items-center bg-black/90">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div className="text-sm">satoshi_terminal - /root/bitcoin</div>
+            <div className="w-4"></div>
+          </div>
+
+          {/* Terminal Content */}
+          <div className="p-4 h-[80vh] overflow-y-auto bg-black/95">
+            {/* Boot Sequence */}
+            {bootSequence && bootMessages.map((msg, index) => (
+              <div key={index} className="mb-2">
+                {index === 4 ? (
+                  <pre className="text-green-400">{msg}</pre>
+                ) : (
+                  <>
+                    <span className="text-green-400">[SYSTEM] </span>
+                    {msg}
+                  </>
+                )}
+              </div>
+            ))}
+
+            {/* Command History */}
+            {history.map((entry, index) => (
+              <div key={index} className="mb-2">
+                {entry.type === 'input' ? (
+                  <div>
+                    <span className="text-green-400">satoshi@bitcoin:~$ </span>
+                    {entry.content}
+                  </div>
+                ) : (
+                  <pre className="whitespace-pre-line">{entry.content}</pre>
+                )}
+              </div>
+            ))}
+
+            {/* Current Input */}
+            {!bootSequence && (
+              <form onSubmit={handleCommand}>
+                <div className="flex">
+                  <span className="text-green-400">satoshi@bitcoin:~$ </span>
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="flex-1 bg-transparent outline-none ml-2"
+                    autoFocus
+                  />
+                  <span className={`${cursorBlink ? 'opacity-100' : 'opacity-0'} transition-opacity`}>█</span>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Terminal Quote */}
+        <div className="text-center mt-4 text-green-500/50 text-sm">
+          "The root problem with conventional currency is all the trust that's required to make it work."
+        </div>
+      </div>
+
+      {/* Footer with Twitter Link */}
+      <footer className="w-full mt-8 border-t border-green-500/20">
+        <div className="max-w-4xl mx-auto py-4">
+          <a
+            href="https://x.com/terminalsatoshi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 text-green-400 hover:text-green-300 transition-colors"
+          >
+            <Twitter size={16} />
+            <span>@terminalsatoshi</span>
+          </a>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default SatoshiTerminal;
